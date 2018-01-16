@@ -1,0 +1,39 @@
+{
+  "name": "iota-transport-udp",
+  "version": "0.0.0",
+  "description": "A transport for IOTA gateway that uses UDP for delivering transactions between neighbours",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "prepublish": "npm run build",
+    "build": "tsc --project tsconfig.json",
+    "test": "mocha test/**/*.spec.ts --require ts-node/register",
+    "test:watch": "npm run test -- --watch --watch-extensions=ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/alexpods/iota-transport-udp.git"
+  },
+  "keywords": [
+    "iota",
+    "transport",
+    "udp",
+    "gateway",
+    "iota-node",
+    "iota-gateway"
+  ],
+  "author": "alexpods <alexey.podskrebyshev@gmail.com>",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/alexpods/iota-transport-udp/issues"
+  },
+  "homepage": "https://github.com/alexpods/iota-transport-udp#readme",
+  "devDependencies": {
+    "@types/chai": "^4.1.0",
+    "@types/mocha": "^2.2.46",
+    "chai": "^4.1.2",
+    "mocha": "^4.1.0",
+    "ts-node": "^4.1.0",
+    "typescript": "^2.6.2"
+  }
+}
