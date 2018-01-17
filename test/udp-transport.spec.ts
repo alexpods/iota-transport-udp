@@ -19,8 +19,8 @@ describe("UdpTransport", () => {
   let remoteNeighbor:  UdpNeighbor
 
   beforeEach(() => {
-    localTransport  = new UdpTransport({ port: localPort,  receiveUnknownNeighbor: false })
-    remoteTransport = new UdpTransport({ port: remotePort, receiveUnknownNeighbor: true })
+    localTransport  = new UdpTransport({ port: localPort  })
+    remoteTransport = new UdpTransport({ port: remotePort })
 
     localNeighbor  = new UdpNeighbor({ host: '127.0.0.1', port: localPort  })
     remoteNeighbor = new UdpNeighbor({ host: '127.0.0.1', port: remotePort })
@@ -207,6 +207,18 @@ describe("UdpTransport", () => {
 
       expect(receiveListener).to.not.have.been.called
     })
+
+    it("should be rejected if it's restricted to send data to the specified neighbor", async () => {
+      await localTransport.removeNeighbor(remoteNeighbor)
+      await localTransport.addNeighbor(remoteNeighbor = new UdpNeighbor({ host: '127.0.0.1', port: remotePort, send: false }))
+
+      expect(receiveListener).to.not.have.been.called
+
+      await expect(localTransport.send(data, remoteNeighbor)).to.be.rejected
+      await new Promise(resolve => setTimeout(resolve, 10))
+
+      expect(receiveListener).to.not.have.been.called
+    })
   })
 
   describe("receiving data", () => {
@@ -254,24 +266,54 @@ describe("UdpTransport", () => {
       expect(receiveListener).to.not.have.been.called
     })
 
+    it("should not recieve data from a neighbor with gatewayCanReceiveFrom = false", async () => {
+      await localTransport.removeNeighbor(remoteNeighbor)
+      await localTransport.addNeighbor(new UdpNeighbor({ host: '127.0.0.1', port: remotePort, receive: false }))
+
+      expect(receiveListener).to.not.have.been.called
+
+      await remoteTransport.send(data, localNeighbor)
+      await new Promise(resolve => setTimeout(resolve, 10))
+
+      expect(receiveListener).to.not.have.been.called
+    })
+  })
+
+  describe("receiving unknown neighbors", () => {
+    let receiveListener: SinonSpy
+    let neighborListener: SinonSpy
+    let localTransport: UdpTransport
+    let data: Data
+
+    beforeEach(async () => {
+      localTransport = new UdpTransport({ port: localPort, receiveUnknownNeighbor: true })
+
+      localTransport.on("neighbor", neighborListener = spy())
+      localTransport.on("receive",  receiveListener = spy())
+
+      await localTransport.run()
+      await remoteTransport.run()
+
+      data = { transaction: generateTransaction(), requestHash: generateHash() }
+    })
+
+    afterEach(async () => {
+      if (localTransport.isRunning) {
+        await localTransport.shutdown()
+      }
+    })
+
     it("should create a new udp neighbor " +
-       "if data received from an unknown neighbor and receiveUnknownNeighbor is true", async () => {
-      let neighborListener = spy()
-      let receiveListener  = spy()
+        "if data received from an unknown neighbor and receiveUnknownNeighbor is true", async () => {
 
-      remoteTransport.on("receive",  receiveListener)
-      remoteTransport.on("neighbor", neighborListener)
-
-      await remoteTransport.removeNeighbor(localNeighbor)
-
-      expect(remoteTransport.getNeighbor(localNeighbor.address)).to.not.be.ok
+      expect(localTransport.getNeighbor(remoteNeighbor.address)).to.not.be.ok
       expect(receiveListener).to.not.have.been.called
       expect(neighborListener).to.not.have.been.called
 
-      await localTransport.send(data, remoteNeighbor)
+      await remoteTransport.send(data, localNeighbor)
       await new Promise(resolve => setTimeout(resolve, 10))
 
-      expect(remoteTransport.getNeighbor(localNeighbor.address)).to.be.ok
+      expect(localTransport.getNeighbor(remoteNeighbor.address)).to.be.ok
       expect(receiveListener).to.have.been.called
       expect(neighborListener).to.have.been.called
 
@@ -282,7 +324,7 @@ describe("UdpTransport", () => {
 
       const [receivedNeigbhor] = neighborListener.args[0]
 
-      expect(receivedNeigbhor.address).to.equal(localNeighbor.address)
+      expect(receivedNeigbhor.address).to.equal(remoteNeighbor.address)
     })
   })
 })

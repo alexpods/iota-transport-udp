@@ -27,7 +27,7 @@ export class UdpTransport extends Transport {
     host?: string
     port: number
     packer?: Packer
-    receiveUnknownNeighbor: boolean
+    receiveUnknownNeighbor?: boolean
   }) {
     super()
     this._host = typeof params.host !== 'undefined' ? String(params.host) : undefined
@@ -112,6 +112,10 @@ export class UdpTransport extends Transport {
         }
       }
 
+      if (!neighbor.gatewayCanReceiveFrom) {
+        return
+      }
+
       let data: Data
 
       try {
@@ -177,6 +181,10 @@ export class UdpTransport extends Transport {
   async send(data: Data, neighbor: UdpNeighbor): Promise<void> {
     if (!this._isRunning) {
       throw new Error("Couldn't send data to the neighbor: the transport is not running!")
+    }
+
+    if (!neighbor.gatewayCanSendTo) {
+      throw new Error(`It's restricted to send data to the neighbor with address "${neighbor.address}"!`)
     }
 
     const address = neighbor.address
