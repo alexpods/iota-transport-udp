@@ -14,6 +14,7 @@ export class UdpTransport extends Transport {
   private _isRunning   = false
 
   private _packer: Packer
+  private _receiveUnknownNeighbor: boolean
 
   private _socket: Socket|null = null
   private _neighbors = new Set<UdpNeighbor>()
@@ -26,12 +27,15 @@ export class UdpTransport extends Transport {
     host?: string
     port: number
     packer?: Packer
+    receiveUnknownNeighbor: boolean
   }) {
     super()
     this._host = typeof params.host !== 'undefined' ? String(params.host) : undefined
     this._port = Number(params.port)
 
     this._packer = typeof params.packer !== 'undefined' ? params.packer : globalPacker
+
+    this._receiveUnknownNeighbor = Boolean(params.receiveUnknownNeighbor)
   }
 
   get isRunning(): boolean {
@@ -96,11 +100,16 @@ export class UdpTransport extends Transport {
     let onMessage, onError, onClose
 
     socket.on("message", onMessage = (packet: Buffer, rinfo: AddressInfo) => {
-      const neighbor = this.getNeighbor(rinfo.address)
+      let neighbor = this.getNeighbor(rinfo.address)
 
       if (!neighbor) {
-        // TODO
-        return
+        if (this._receiveUnknownNeighbor) {
+          neighbor = new UdpNeighbor({ host: rinfo.address, port: rinfo.port })
+          this.addNeighbor(neighbor)
+          this.emit("neighbor", neighbor)
+        } else {
+          return
+        }
       }
 
       let data: Data
