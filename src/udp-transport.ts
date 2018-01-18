@@ -124,7 +124,7 @@ export class UdpTransport extends Transport {
 
 
       if (data) {
-        this.emit("receive", data, neighbor)
+        this.emit("receive", data, neighbor, rinfo.address)
       }
     })
 
@@ -178,7 +178,7 @@ export class UdpTransport extends Transport {
     this._isRunning = false
   }
 
-  async send(data: Data, neighbor: UdpNeighbor): Promise<void> {
+  async send(data: Data, neighbor: UdpNeighbor, address: string): Promise<void> {
     if (!this._isRunning) {
       throw new Error("Couldn't send data to the neighbor: the transport is not running!")
     }
@@ -187,11 +187,8 @@ export class UdpTransport extends Transport {
       throw new Error(`It's restricted to send data to the neighbor with address "${neighbor.address}"!`)
     }
 
-    const address = neighbor.address
-    const port    = neighbor.port
-
     const packet = this._packer.pack(data)
 
-    await new Promise(resolve => this._socket.send(packet, port, address, resolve))
+    await new Promise(resolve => this._socket.send(packet, neighbor.port, address, resolve))
   }
 }

@@ -72,7 +72,7 @@ describe("UdpTransport", () => {
 
       expect(receiveListener).to.not.have.been.called
 
-      remoteTransport.send(data, localNeighbor)
+      remoteTransport.send(data, localNeighbor, localNeighbor.address)
       await new Promise(resolve => setTimeout(resolve, 10))
 
       expect(receiveListener).to.not.have.been.called
@@ -81,7 +81,7 @@ describe("UdpTransport", () => {
 
       expect(receiveListener).to.not.have.been.called
 
-      await remoteTransport.send(data, localNeighbor)
+      await remoteTransport.send(data, localNeighbor, localNeighbor.address)
       await new Promise(resolve => setTimeout(resolve, 10))
 
       expect(receiveListener).to.have.been.called
@@ -121,7 +121,7 @@ describe("UdpTransport", () => {
 
       expect(receiveListener).to.not.have.been.called
 
-      remoteTransport.send(data, localNeighbor)
+      remoteTransport.send(data, localNeighbor, localNeighbor.address)
       await new Promise(resolve => setTimeout(resolve, 10))
 
       expect(receiveListener).to.have.been.calledOnce
@@ -130,7 +130,7 @@ describe("UdpTransport", () => {
 
       expect(receiveListener).to.have.been.calledOnce
 
-      await remoteTransport.send(data, localNeighbor)
+      await remoteTransport.send(data, localNeighbor, localNeighbor.address)
       await new Promise(resolve => setTimeout(resolve, 10))
 
       expect(receiveListener).to.been.calledOnce
@@ -186,7 +186,7 @@ describe("UdpTransport", () => {
     it("should send data to the specified neighbor", async () => {
       expect(receiveListener).to.not.have.been.called
 
-      await expect(localTransport.send(data, remoteNeighbor)).to.be.fulfilled
+      await expect(localTransport.send(data, remoteNeighbor, remoteNeighbor.address)).to.be.fulfilled
       await new Promise(resolve => setTimeout(resolve, 10))
 
       expect(receiveListener).to.have.been.called
@@ -202,7 +202,7 @@ describe("UdpTransport", () => {
 
       expect(receiveListener).to.not.have.been.called
 
-      await expect(localTransport.send(data, remoteNeighbor)).to.be.rejected
+      await expect(localTransport.send(data, remoteNeighbor, remoteNeighbor.address)).to.be.rejected
       await new Promise(resolve => setTimeout(resolve, 10))
 
       expect(receiveListener).to.not.have.been.called
@@ -214,7 +214,7 @@ describe("UdpTransport", () => {
 
       expect(receiveListener).to.not.have.been.called
 
-      await expect(localTransport.send(data, remoteNeighbor)).to.be.rejected
+      await expect(localTransport.send(data, remoteNeighbor, remoteNeighbor.address)).to.be.rejected
       await new Promise(resolve => setTimeout(resolve, 10))
 
       expect(receiveListener).to.not.have.been.called
@@ -243,7 +243,7 @@ describe("UdpTransport", () => {
       expect(neighborListener).to.not.have.been.called
       expect(receiveListener).to.not.have.been.called
 
-      await remoteTransport.send(data, localNeighbor)
+      await remoteTransport.send(data, localNeighbor, localNeighbor.address)
       await new Promise(resolve => setTimeout(resolve, 10))
 
       expect(neighborListener).to.not.have.been.called
@@ -255,12 +255,12 @@ describe("UdpTransport", () => {
       expect(receivedData.requestHash.bytes.equals(data.requestHash.bytes.slice(0, 46))).to.be.true
     })
 
-    it("shoulld not receive data from the unknown neighbor if receiveUnknownNeighbor prop is false", async () => {
+    it("shoulld not receive data from the unknown neighbor if receiveUnknownNeighbor = false", async () => {
       await localTransport.removeNeighbor(remoteNeighbor)
 
       expect(receiveListener).to.not.have.been.called
 
-      await remoteTransport.send(data, localNeighbor)
+      await remoteTransport.send(data, localNeighbor, localNeighbor.address)
       await new Promise(resolve => setTimeout(resolve, 10))
 
       expect(receiveListener).to.not.have.been.called
@@ -272,7 +272,7 @@ describe("UdpTransport", () => {
 
       expect(receiveListener).to.not.have.been.called
 
-      await remoteTransport.send(data, localNeighbor)
+      await remoteTransport.send(data, localNeighbor, localNeighbor.address)
       await new Promise(resolve => setTimeout(resolve, 10))
 
       expect(receiveListener).to.not.have.been.called
@@ -310,7 +310,7 @@ describe("UdpTransport", () => {
       expect(receiveListener).to.not.have.been.called
       expect(neighborListener).to.not.have.been.called
 
-      await remoteTransport.send(data, localNeighbor)
+      await remoteTransport.send(data, localNeighbor, localNeighbor.address)
       await new Promise(resolve => setTimeout(resolve, 10))
 
       expect(localTransport.getNeighbor(remoteNeighbor.address)).to.be.ok
@@ -325,6 +325,7 @@ describe("UdpTransport", () => {
       const [receivedNeigbhor] = neighborListener.args[0]
 
       expect(receivedNeigbhor.address).to.equal(remoteNeighbor.address)
+      expect(receivedNeigbhor.port).to.equal(remoteNeighbor.port)
     })
   })
 })
