@@ -1,11 +1,6 @@
 import { Socket, createSocket, AddressInfo } from 'dgram'
-import { Serializer, Factory } from 'iota-tangle'
-import { Transport, Neighbor, Data, Packer } from 'iota-gateway'
+import { Transport, Neighbor, Data, Packer, packer as globalPacker } from 'iota-gateway'
 import { UdpNeighbor } from './udp-neighbor';
-
-const globalSerializer = new Serializer()
-const globalFactory    = new Factory({ serializer: globalSerializer })
-const globalPacker     = new Packer({ factory: globalFactory })
 
 export class UdpTransport extends Transport {
   private _host: string|undefined

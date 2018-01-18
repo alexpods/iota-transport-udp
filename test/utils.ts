@@ -1,7 +1,4 @@
-import { Transaction, Hash, Factory, Serializer } from 'iota-tangle'
-
-const serializer = new Serializer()
-const factory = new Factory({ serializer })
+import { Transaction, Hash, factory } from 'iota-tangle'
 
 export function generateTransaction (): Transaction {
   const buffer = Buffer.alloc(1604)

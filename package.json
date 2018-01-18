@@ -28,6 +28,9 @@
     "url": "https://github.com/alexpods/iota-transport-udp/issues"
   },
   "homepage": "https://github.com/alexpods/iota-transport-udp#readme",
+  "dependencies": {
+    "@types/node": "^9.3.0"
+  },
   "devDependencies": {
     "@types/chai": "^4.1.0",
     "@types/chai-as-promised": "^7.1.0",
@@ -36,7 +39,8 @@
     "@types/sinon-chai": "^2.7.29",
     "chai": "^4.1.2",
     "chai-as-promised": "^7.1.1",
-    "iota-gateway": "^0.1.7",
+    "iota-gateway": "^0.2.1",
+    "iota-tangle": "^0.1.0",
     "mocha": "^4.1.0",
     "sinon": "^4.1.6",
     "sinon-chai": "^2.14.0",
@@ -44,10 +48,7 @@
     "typescript": "^2.6.2"
   },
   "peerDependencies": {
-    "iota-gateway": "^0.1.7"
-  },
-  "dependencies": {
-    "@types/node": "^9.3.0",
-    "iota-tangle": "0.0.6"
+    "iota-gateway": "^0.1.7",
+    "iota-tangle": "^0.1.0"
   }
 }
