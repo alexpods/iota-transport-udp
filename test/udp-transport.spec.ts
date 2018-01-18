@@ -86,10 +86,12 @@ describe("UdpTransport", () => {
 
       expect(receiveListener).to.have.been.called
 
-      const [receivedData, receivedRequestedHash] = receiveListener.args[0]
+      const [receivedData, receivedNeighbor, receviedAddress] = receiveListener.args[0]
 
       expect(receivedData.transaction.bytes.equals(data.transaction.bytes)).to.be.true
       expect(receivedData.requestHash.bytes.equals(data.requestHash.bytes.slice(0, 46))).to.be.true
+      expect(receivedNeighbor).to.equal(remoteNeighbor)
+      expect(receviedAddress).to.equal(remoteNeighbor.address)
     })
   })
 
@@ -191,10 +193,12 @@ describe("UdpTransport", () => {
 
       expect(receiveListener).to.have.been.called
 
-      const [receivedData, receivedRequestedHash] = receiveListener.args[0]
+      const [receivedData, receivedNeighbor, receviedAddress] = receiveListener.args[0]
 
       expect(receivedData.transaction.bytes.equals(data.transaction.bytes)).to.be.true
       expect(receivedData.requestHash.bytes.equals(data.requestHash.bytes.slice(0, 46))).to.be.true
+      expect(receivedNeighbor).to.equal(localNeighbor)
+      expect(receviedAddress).to.equal(localNeighbor.address)
     })
 
     it("should be rejected if the transport is not running", async () => {
@@ -249,10 +253,12 @@ describe("UdpTransport", () => {
       expect(neighborListener).to.not.have.been.called
       expect(receiveListener).to.have.been.called
 
-      const [receivedData, receivedRequestedHash] = receiveListener.args[0]
+      const [receivedData, receivedNeighbor, receviedAddress] = receiveListener.args[0]
 
       expect(receivedData.transaction.bytes.equals(data.transaction.bytes)).to.be.true
       expect(receivedData.requestHash.bytes.equals(data.requestHash.bytes.slice(0, 46))).to.be.true
+      expect(receivedNeighbor).to.equal(remoteNeighbor)
+      expect(receviedAddress).to.equal(remoteNeighbor.address)
     })
 
     it("shoulld not receive data from the unknown neighbor if receiveUnknownNeighbor = false", async () => {
@@ -304,7 +310,7 @@ describe("UdpTransport", () => {
     })
 
     it("should create a new udp neighbor " +
-        "if data received from an unknown neighbor and receiveUnknownNeighbor is true", async () => {
+       "if data received from an unknown neighbor and receiveUnknownNeighbor is true", async () => {
 
       expect(localTransport.getNeighbor(remoteNeighbor.address)).to.not.be.ok
       expect(receiveListener).to.not.have.been.called
@@ -317,15 +323,18 @@ describe("UdpTransport", () => {
       expect(receiveListener).to.have.been.called
       expect(neighborListener).to.have.been.called
 
-      const [receivedData, receivedRequestedHash] = receiveListener.args[0]
+      const [receivedData, receivedNeighbor, receviedAddress] = receiveListener.args[0]
 
       expect(receivedData.transaction.bytes.equals(data.transaction.bytes)).to.be.true
       expect(receivedData.requestHash.bytes.equals(data.requestHash.bytes.slice(0, 46))).to.be.true
 
-      const [receivedNeigbhor] = neighborListener.args[0]
+      expect(receivedNeighbor.port).to.equal(remoteNeighbor.port)
+      expect(receviedAddress).to.equal(remoteNeighbor.address)
 
-      expect(receivedNeigbhor.address).to.equal(remoteNeighbor.address)
-      expect(receivedNeigbhor.port).to.equal(remoteNeighbor.port)
+      const [receivedNeigbhor2] = neighborListener.args[0]
+
+      expect(receivedNeigbhor2.address).to.equal(remoteNeighbor.address)
+      expect(receivedNeigbhor2.port).to.equal(remoteNeighbor.port)
     })
   })
 })
